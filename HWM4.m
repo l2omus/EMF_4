@@ -31,8 +31,8 @@ stocks_P = data_stocks(2:end,2:end);
 N = length(stocks_P(1,:));
 T = length(stocks_P(1:end-1,1));
 
-for i=1:N;                      %Create a matrix of returns for each firm and each period
-    for t = 1:T;
+for i=1:N                    %Create a matrix of returns for each firm and each period
+    for t = 1:T
         stocks_R(t, i) = (stocks_P(t+1,i) - stocks_P(t,i))/stocks_P(t, i);
     end
     stocks_Z(:,i) = stocks_R(:,i) - rf; %Create the same matrix for excess returns
@@ -44,6 +44,8 @@ end
 %
 %
 %-------------------------------------------------------------------------------------------------------
+
+% Point 1a
 
 % Regression time-series 
 regressors_T = [ones(size(rmrf)) rmrf smb	hml];
@@ -64,12 +66,28 @@ stocks_mean_Z = mean(stocks_Z, 1)';
 regressors_N = [ones(size(alphas)) betas_m betas_smb betas_hml];
 
 reg_N = ols(stocks_mean_Z, regressors_N);
+for p = 1:4
+	psi_hat(p) = reg_T(i).beta(p);
+end
+clear p;
 prt(reg_N);
 
+% Point 1b
 
+% Estimate covariance matrix
+sigma_hat = zeros(N,N);
+for t = 1:T
+	sigma_hat = sigma_hat + residuals(t,:)'*residuals(t,:);
+end
+sigma_hat = sigma_hat/T;
 
+mean_z = mean(rmrf);
+var_z = var(rmrf);
 
+wald_stat(1) = T*(1+mean_z^2/var_z)^(-1)*alphas'*inv(sigma_hat)*alphas;
 
-
+wald_stat(2) = chi2inv(0.99, N);
+wald_stat(3) = chi2inv(0.95, N);
+wald_stat(4) = chi2inv(0.90, N)
 
 
