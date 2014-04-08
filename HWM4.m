@@ -139,4 +139,29 @@ figure(2)
 bar(gamma_2)
 set(gca, 'XTick', 1:N, 'XTickLabel', label)
 
+for i=1:N
+	weights_1(i) = gamma_1(i)/sum(gamma_1);
+end
+
+portfolio_Z_1 = (weights_1*stocks_Z')';
+
+for i=1:N
+	eq_weights(i) = [1/N];
+end
+
+portfolio_Z_eq = (eq_weights*stocks_Z')';
+
+corr_port_Z_1_eq = corr(portfolio_Z_eq, portfolio_Z_1)
+
+for i=1:N
+	weights_2(i) = gamma_2(i)/sum(gamma_2);
+end
+
+portfolio_Z_2 = (weights_2*stocks_Z')';
+
+corr_port_Z_1_2 = corr(portfolio_Z_2, portfolio_Z_1)
+
+
+
+
 
