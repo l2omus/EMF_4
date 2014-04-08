@@ -91,3 +91,52 @@ wald_stat(3) = chi2inv(0.95, N);
 wald_stat(4) = chi2inv(0.90, N)
 
 
+%% PCA
+
+%--------------------------------------- Section 2 -----------------------------------------------------
+%
+%
+%-------------------------------------------------------------------------------------------------------
+
+for t=1:T
+	stocks_Z_cen(t,:) = stocks_Z(t,:) - mean(stocks_Z); 
+	stocks_Z_cs(t,:) = stocks_Z_cen(t,:)./std(stocks_Z);
+end
+
+stocks_Z_cs_corr = corr(stocks_Z_cs);
+[eig_vec eig_val] = eig(stocks_Z_cs_corr);
+
+pc = (eig_vec'*stocks_Z_cen')';
+
+
+eig_val_v = diag(eig_val);
+k = 0;
+m = 0;
+while m<0.45
+	k = k+1;
+	m = sum(eig_val_v(1:k))/sum(eig_val_v);
+end
+message = ['With ', num2str(k) , ' factors we can explain ', num2str(m*100), ' percents of the total variability in the excess returns matrix.'];
+disp(message)
+
+pc_crop = pc(:,1:k);
+
+regressors_pc = [ones(length(pc_crop(:,1)),1) pc_crop];
+for i=1:N
+	reg_pc(i) = ols(stocks_Z(:,i), regressors_pc);
+	mu(i) = reg_pc(i).beta(1);
+	gamma_1(i) = reg_pc(i).beta(2);
+	gamma_2(i) = reg_pc(i).beta(3);
+	gamma_3(i) = reg_pc(i).beta(4);
+end
+
+label = {'3M', 'ATT', 'AE', 'BO', 'CP', 'CHE','COCA', 'PDM', 'EXX','GE', 'HD', 'INT','IBUS', 'GPM', 'J&G','MCD', 'MNC', 'M$','NIKE', 'PZR', 'P&G','TRA', 'UT', 'UGP','VC', 'WM', 'WD',};
+figure(1)
+bar(gamma_1)
+set(gca, 'XTick', 1:N, 'XTickLabel', label)
+
+figure(2)
+bar(gamma_2)
+set(gca, 'XTick', 1:N, 'XTickLabel', label)
+
+
