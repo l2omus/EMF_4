@@ -21,4 +21,9 @@ clear all; clc, close all;
 data_stocks=xlsread('DATA_HW3.xls','Stocks');
 data_market=xlsread('DATA_HW3.xls','Market');
 
+rmrf = data_market(:, 2)/100;
+smb = data_market(:,3)/100;
+hml = data_market(:,4)/100;
+rf = data_market(:,5)/100;
 
+stocks_P = data_stocks(2:end,2:end);
