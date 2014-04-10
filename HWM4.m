@@ -18,13 +18,13 @@ close all, clear all; clc;
 %-------------------------------------------------------------------------------------------------------
 
 % Import data from spreadsheet
-data_stocks=xlsread('DATA_HW3.xls','Stocks');
-data_market=xlsread('DATA_HW3.xls','Market');
+data_stocks=xlsread('DATA_HW3.xls','Stocks'); % 
+data_market=xlsread('DATA_HW3.xls','Market'); % 
 
-rmrf = data_market(2:end, 2)/100;
-smb = data_market(2:end,3)/100;
-hml = data_market(2:end,4)/100;
-rf = data_market(2:end,5)/100;
+rmrf = data_market(2:end, 2)/100;	% Create a vector with data and adjust for percentage
+smb = data_market(2:end,3)/100;		% Create a vector with data and adjust for percentage
+hml = data_market(2:end,4)/100;		% Create a vector with data and adjust for percentage
+rf = data_market(2:end,5)/100;		% Create a vector with data and adjust for percentage
 
 stocks_P = data_stocks(2:end,2:end);
 
@@ -52,7 +52,7 @@ regressors_T = [ones(size(rmrf)) rmrf smb	hml];
 
 for i=1:N
 	reg_T(i) = ols(stocks_Z(:,i), regressors_T);
-	alphas(i,1) = reg_T(i).beta(1);
+	alphas(i,1) = reg_T(i).beta(1);		
     betas_m(i,1) = reg_T(i).beta(2);
     betas_smb(i,1) = reg_T(i).beta(3);
     betas_hml(i,1) = reg_T(i).beta(4);
@@ -99,14 +99,14 @@ wald_stat(4) = chi2inv(0.90, N)
 %-------------------------------------------------------------------------------------------------------
 
 for t=1:T
-	stocks_Z_cen(t,:) = stocks_Z(t,:) - mean(stocks_Z); 
-	stocks_Z_cs(t,:) = stocks_Z_cen(t,:)./std(stocks_Z);
+	stocks_R_cen(t,:) = stocks_R(t,:) - mean(stocks_R); 
+	stocks_R_cs(t,:) = stocks_R_cen(t,:)./std(stocks_R);
 end
 
-stocks_Z_cs_corr = corr(stocks_Z_cs);
-[eig_vec eig_val] = eig(stocks_Z_cs_corr);
+stocks_R_cs_corr = corr(stocks_R_cs);
+[eig_vec eig_val] = eig(stocks_R_cs_corr);
 
-pc = (eig_vec'*stocks_Z_cen')';
+pc = (eig_vec'*stocks_R_cen')';
 
 
 eig_val_v = diag(eig_val);
@@ -123,7 +123,7 @@ pc_crop = pc(:,1:k);
 
 regressors_pc = [ones(length(pc_crop(:,1)),1) pc_crop];
 for i=1:N
-	reg_pc(i) = ols(stocks_Z(:,i), regressors_pc);
+	reg_pc(i) = ols(stocks_R(:,i), regressors_pc);
 	mu(i) = reg_pc(i).beta(1);
 	gamma_1(i) = reg_pc(i).beta(2);
 	gamma_2(i) = reg_pc(i).beta(3);
@@ -143,23 +143,23 @@ for i=1:N
 	weights_1(i) = gamma_1(i)/sum(gamma_1);
 end
 
-portfolio_Z_1 = (weights_1*stocks_Z')';
+portfolio_R_1 = (weights_1*stocks_R')';
 
 for i=1:N
 	eq_weights(i) = [1/N];
 end
 
-portfolio_Z_eq = (eq_weights*stocks_Z')';
+portfolio_R_eq = (eq_weights*stocks_R')';
 
-corr_port_Z_1_eq = corr(portfolio_Z_eq, portfolio_Z_1)
+corr_port_R_1_eq = corr(portfolio_R_eq, portfolio_R_1)
 
 for i=1:N
 	weights_2(i) = gamma_2(i)/sum(gamma_2);
 end
 
-portfolio_Z_2 = (weights_2*stocks_Z')';
+portfolio_R_2 = (weights_2*stocks_R')';
 
-corr_port_Z_1_2 = corr(portfolio_Z_2, portfolio_Z_1)
+corr_port_R_1_2 = corr(portfolio_R_2, portfolio_R_1)
 
 
 
